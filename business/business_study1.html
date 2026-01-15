@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ビジネス学習 01：ビジネスモデル</title>
+<style>
+  body { font-family: "Meiryo", sans-serif; max-width: 960px; margin: 20px auto; line-height: 1.6; background-color: #f4f7f6; }
+  h1 { text-align: center; color: #2c3e50; }
+  
+  /* 進捗状況バー（①〜⑤） */
+  .step-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+  .step { flex: 1; text-align: center; padding: 8px; background: #ddd; border-radius: 20px; font-size: 14px; color: #666; font-weight: bold; }
+  .step.active { background: #3498db; color: #fff; }
+  .step.done { background: #a2d2ff; color: #fff; }
+
+  table { width: 100%; border-collapse: collapse; background: #fff; margin-bottom: 20px; }
+  th, td { border: 1px solid #ccc; padding: 12px; text-align: left; }
+  th { background-color: #34495e; color: #fff; }
+
+  /* 下線なし、明るい淡いグリーンの空欄 */
+  .blank {
+    display: inline-block;
+    min-width: 90px;
+    height: 28px;
+    background-color: #e8f5e9; /* 明るい淡いグリーン */
+    cursor: pointer;
+    vertical-align: middle;
+    text-align: center;
+    border-radius: 4px;
+    border: none;
+  }
+  .blank.correct { background-color: #c8e6c9; font-weight: bold; color: #2e7d32; }
+
+  .word-bank { display: flex; flex-wrap: wrap; gap: 10px; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 20px; }
+  .word-chip { padding: 8px 15px; border: 1px solid #3498db; border-radius: 20px; background: #fff; cursor: pointer; }
+  .word-chip.selected-chip { background-color: #3498db; color: #fff; }
+  .word-chip.used { opacity: 0.2; cursor: default; }
+
+  .controls { display: flex; gap: 10px; align-items: center; }
+  button { padding: 12px 24px; background: #2c3e50; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+  .next-btn { background: #e67e22; text-decoration: none; padding: 12px 24px; color: #fff; border-radius: 5px; display: none; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div class="step-bar">
+  <div class="step active">①ICT</div><div class="step active">②BtoB</div><div class="step active">③BtoC</div><div class="step active">④CtoC</div><div class="step active">⑤SOHO</div>
+</div>
+
+<h1>ビジネスモデル学習 (01)</h1>
+
+<table>
+  <thead><tr><th>用語</th><th>正式名称 / 意味</th><th>概要</th><th>具体的例</th></tr></thead>
+  <tbody>
+    <tr><td><span class="blank" data-id="ICT">ICT</span></td><td>Information and Communication Technology</td><td>情報通信技術。通信の要素を加えた言葉。</td><td>SNS、チャット、オンライン会議</td></tr>
+    <tr><td><span class="blank" data-id="BtoB">BtoB</span></td><td>Business to Business</td><td>企業間取引。企業が企業に提供。</td><td>部品メーカー、広告代理店</td></tr>
+    <tr><td><span class="blank" data-id="BtoC">BtoC</span></td><td>Business to Consumer</td><td>企業対個人取引。一般消費者へ提供。</td><td>コンビニ、ネット通販</td></tr>
+    <tr><td><span class="blank" data-id="CtoC">CtoC</span></td><td>Consumer to Consumer</td><td>個人間取引。個人同士で売買。</td><td>メルカリ、ヤフオク</td></tr>
+    <tr><td><span class="blank" data-id="SOHO">SOHO</span></td><td>Small Office Home Office</td><td>小さな事務所や自宅で働く形態。</td><td>フリーランスのプログラマー</td></tr>
+  </tbody>
+</table>
+
+<div id="word-bank" class="word-bank"></div>
+
+<div class="controls">
+  <button id="start-btn">チャレンジ開始</button>
+  <button id="check-btn" disabled>判定</button>
+  <a href="business_study02.html" class="next-btn" id="next-btn">次の学習(02)へ進む ▶</a>
+</div>
+
+<script>
+  const words = ["ICT", "BtoB", "BtoC", "CtoC", "SOHO"];
+  let selectedChip = null;
+  let isStarted = false;
+
+  function renderBank() {
+    const bank = document.getElementById('word-bank');
+    bank.innerHTML = '';
+    [...words].sort(() => Math.random() - 0.5).forEach(word => {
+      const chip = document.createElement('div');
+      chip.className = 'word-chip';
+      chip.textContent = word;
+      chip.onclick = () => {
+        if (!isStarted || chip.classList.contains('used')) return;
+        if (selectedChip) selectedChip.classList.remove('selected-chip');
+        selectedChip = chip;
+        chip.classList.add('selected-chip');
+      };
+      bank.appendChild(chip);
+    });
+  }
+
+  document.getElementById('start-btn').onclick = () => {
+    isStarted = true;
+    document.querySelectorAll('.blank').forEach(b => { b.textContent = ''; b.dataset.val = ''; b.classList.remove('correct'); });
+    document.getElementById('check-btn').disabled = false;
+    renderBank();
+  };
+
+  document.querySelectorAll('.blank').forEach(blank => {
+    blank.onclick = () => {
+      if (!isStarted) return;
+      if (selectedChip) {
+        if (blank.dataset.val) {
+          const old = Array.from(document.querySelectorAll('.word-chip')).find(c => c.textContent === blank.dataset.val);
+          if (old) old.classList.remove('used');
+        }
+        blank.textContent = selectedChip.textContent;
+        blank.dataset.val = selectedChip.textContent;
+        selectedChip.classList.add('used');
+        selectedChip.classList.remove('selected-chip');
+        selectedChip = null;
+      }
+    };
+  });
+
+  document.getElementById('check-btn').onclick = () => {
+    let correctCount = 0;
+    document.querySelectorAll('.blank').forEach(b => {
+      if (b.dataset.val === b.dataset.id) { b.classList.add('correct'); correctCount++; }
+    });
+    if (correctCount === words.length) {
+      alert("全問正解！01クリアです。");
+      document.getElementById('next-btn').style.display = "inline-block";
+    }
+  };
+</script>
+</body>
+</html>

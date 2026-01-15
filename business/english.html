@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>爆速英文法｜EA01 be動詞</title>
+    <style>
+        body { font-family: "Meiryo", sans-serif; background:#f4f6fb; margin:0; padding:0; padding-bottom: 150px; }
+        header { background:#1e3a8a; color:white; padding:16px; text-align:center; }
+        .container { max-width:900px; margin:auto; padding:16px; }
+        .section { background:white; border-radius:10px; padding:20px; margin-bottom:20px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+        h2 { border-left:6px solid #2563eb; padding-left:10px; color:#1e3a8a; }
+        
+        /* 空欄（緑色の枠） */
+        .blank { display: inline-block; width: 80px; height: 30px; border: 2px solid #2ecc71; border-radius: 4px; vertical-align: middle; text-align: center; color: #2563eb; font-weight: bold; background: #f0fff4; cursor: pointer; }
+        
+        /* 語群（画面下部に固定） */
+        .fixed-pool { position: fixed; bottom: 0; left: 0; right: 0; background: #eef2ff; border-top: 3px solid #2563eb; padding: 15px; z-index: 100; }
+        .word-card { display: inline-block; background: white; border: 1px solid #c7d2fe; padding: 8px 15px; margin: 5px; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: bold; }
+        .word-card:active { background: #dbeafe; }
+        
+        /* 重要単語ポップアップ */
+        .imp-word { color: #2563eb; text-decoration: underline; cursor: help; position: relative; }
+        .tooltip { visibility: hidden; width: 200px; background: #333; color: #fff; text-align: center; padding: 8px; border-radius: 6px; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%); z-index: 110; font-size: 0.85rem; }
+        .imp-word:hover .tooltip { visibility: visible; }
+
+        .btn-voice { background: #fb923c; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-left: 10px; }
+        .timer { font-size: 32px; font-weight: bold; color: #dc2626; text-align: center; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>⚡️ 爆速英文法：EA01 be動詞(1)</h1>
+</header>
+
+<div class="container">
+    <div class="section">
+        <div class="timer" id="timer">00:00</div>
+        <button style="display:block; margin:10px auto; padding:10px 20px;" onclick="startChallenge()">チャレンジ開始！</button>
+    </div>
+
+    <div class="section" id="intro-section">
+        <h2>1. 導入：be動詞の形</h2>
+        <p>Be動詞には <span class="blank" onclick="placeWord(this, 'is')"></span> <span class="blank" onclick="placeWord(this, 'am')"></span> <span class="blank" onclick="placeWord(this, 'are')"></span> があり、それぞれ「〜である」という意味をもちます。</p>
+        
+        <table border="1" style="width:100%; border-collapse: collapse; margin-top:10px;">
+            <tr style="background:#f8fafc;"><th>主語</th><th>be動詞</th></tr>
+            <tr><td>I</td><td><span class="blank" onclick="placeWord(this, 'am')"></span></td></tr>
+            <tr><td>You</td><td><span class="blank" onclick="placeWord(this, 'are')"></span></td></tr>
+            <tr><td>He / She</td><td><span class="blank" onclick="placeWord(this, 'is')"></span></td></tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>2. 例文並び替え</h2>
+        <div id="quiz-container">
+            </div>
+    </div>
+</div>
+
+<div class="fixed-pool">
+    <strong>【語群】タップして選択</strong><br>
+    <div id="word-pool"></div>
+</div>
+
+<script>
+let startTime;
+let timerInterval;
+let selectedWord = null;
+
+const dictionary = {
+    "Japanese": "【ジャパ**ニ**ーズ】(形)日本の",
+    "student": "【ス**テュ**ーデント】(名)学生",
+    "dentist": "【**デ**ンティスト】(名)歯医者"
+};
+
+const quizData = [
+    { jp: "私は日本の学生です。", en: ["I", "am", "a", "Japanese", "student"], correct: "I am a Japanese student" },
+    { jp: "彼は歯医者です。", en: ["He", "is", "a", "dentist"], correct: "He is a dentist" }
+];
+
+function startChallenge() {
+    startTime = Date.now();
+    clearInterval(timerInterval);
+    timerInterval = setInterval(updateTimer, 1000);
+    renderPool();
+    renderQuizzes();
+}
+
+function updateTimer() {
+    const diff = Math.floor((Date.now() - startTime) / 1000);
+    const m = String(Math.floor(diff / 60)).padStart(2,'0');
+    const s = String(diff % 60).padStart(2,'0');
+    document.getElementById("timer").textContent = `${m}:${s}`;
+}
+
+function renderPool() {
+    const pool = document.getElementById("word-pool");
+    pool.innerHTML = "";
+    // EA01に必要な単語をすべて追加（重複含む）
+    const allWords = ["is", "am", "are", "am", "are", "is", "I", "am", "a", "Japanese", "student", "He", "is", "a", "dentist"];
+    allWords.sort(() => Math.random() - 0.5).forEach(w => {
+        const div = document.createElement("div");
+        div.className = "word-card";
+        div.innerHTML = dictionary[w] ? `<span class="imp-word">${w}<span class="tooltip">${dictionary[w]}</span></span>` : w;
+        div.onclick = () => {
+            selectedWord = w;
+            document.querySelectorAll(".word-card").forEach(c => c.style.background = "white");
+            div.style.background = "#ffffaa";
+        };
+        pool.appendChild(div);
+    });
+}
+
+function placeWord(element, correctAns) {
+    if (!selectedWord) return;
+    if (selectedWord === correctAns) {
+        element.textContent = selectedWord;
+        element.style.background = "#eef2ff";
+        element.style.cursor = "default";
+        selectedWord = null;
+        checkWin();
+    } else {
+        alert("もうチョイ！");
+    }
+}
+
+function renderQuizzes() {
+    const container = document.getElementById("quiz-container");
+    container.innerHTML = "";
+    quizData.forEach((q, i) => {
+        const div = document.createElement("div");
+        div.innerHTML = `<p>${q.jp} <button class="btn-voice" onclick="playVoice('${q.correct}')">発</button></p>
+                         <div id="ans-row-${i}" style="min-height:40px; border-bottom:1px solid #ccc; margin-bottom:15px;"></div>`;
+        container.appendChild(div);
+    });
+}
+
+function playVoice(text) {
+    const uttr = new SpeechSynthesisUtterance(text);
+    uttr.lang = 'en-US';
+    uttr.rate = 0.7;
+    speechSynthesis.speak(uttr);
+}
+
+function checkWin() {
+    // 全問正解時の判定ロジックをここに追加
+}
+</script>
+</body>
+</html>
